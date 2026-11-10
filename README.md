@@ -1,83 +1,73 @@
 # Python & R Cheatsheets
 
-Личный справочник по Python и R. Каждая шпаргалка — отдельный Markdown-файл в `content/`.
-Сайт сам собирает список, группирует по категориям и даёт фильтр по пакетам.
+A personal Python and R reference. Each cheatsheet is a single Markdown file in `content/`.
+The site builds the list on its own, groups sheets by category and lets you filter by package.
 
-## Как добавить шпаргалку
+Live site: https://infanss.github.io/cheatsheets/
 
-1. Положить файл `content/{lang}-{topic}.md` (например `content/r-survival-analysis.md`).
-2. Проверить локально (по желанию):
+## Adding a cheatsheet
+
+1. Add a file `content/{lang}-{topic}.md` (for example `content/r-survival-analysis.md`).
+2. Preview locally (optional):
    ```bash
    python scripts/build.py --serve
    ```
-   и открыть http://localhost:8000
-3. Закоммитить и запушить:
+   then open http://localhost:8000
+3. Commit and push:
    ```bash
    git add content/ && git commit -m "Add r-survival-analysis" && git push
    ```
-   GitHub Actions соберёт сайт и опубликует его на GitHub Pages за 1–2 минуты.
+   GitHub Actions builds the site and publishes it to GitHub Pages in 1–2 minutes.
 
-Можно класть файлы и в подпапки (`content/r/omop/...`) — сборщик ищет `.md` рекурсивно.
+Files can also live in subfolders (`content/r/omop/...`); the build script searches for `.md` files recursively.
 
-## Формат файла
+## File format
 
-Файл начинается с YAML frontmatter, дальше обычный Markdown (GFM: таблицы, блоки кода с языком).
+Each file starts with YAML frontmatter, followed by regular Markdown (GFM: tables, fenced code blocks with a language).
 
 ```yaml
 ---
-title: "Survival analysis в R"
-slug: r-survival-analysis        # = имя файла без .md, должен быть уникальным
-lang: r                          # python | r | both  (both показывается в обоих режимах)
-category: statistics             # data | statistics | causal | omop | bioinformatics | visualization | reproducibility | ml
+title: "Survival analysis in R"
+slug: r-survival-analysis        # = file name without .md, must be unique
+lang: r                          # python | r | both  (both shows up under both languages)
+category: statistics             # basics | data | statistics | causal | omop | bioinformatics | visualization | reproducibility | ml
 tags: [survival, cox]
 level: beginner                  # beginner | intermediate | advanced
-packages:                        # из этого строится фильтр «Пакеты»
+packages:                        # feeds the "Packages" filter
   - name: survival
     version: "x.y.z"
 language_version: "R 4.6"
-last_verified: "2026-10-28"
-summary: "Одна фраза о том, что внутри."
+last_verified: "2026-11-10"
+summary: "One sentence on what is inside."
 sources:
-  - title: "Документация survival"
+  - title: "survival documentation"
     url: "https://..."
 ---
 ```
 
-Обязательные поля: `title`, `slug`, `lang`, `category`, `summary`. Если чего-то не хватает,
-сборка в CI упадёт и покажет, в каком файле ошибка.
+Required fields: `title`, `slug`, `lang`, `category`, `summary`. If one is missing,
+the CI build fails and names the file.
 
-Как отображается:
-- `## Раздел` — заголовок раздела и пункт оглавления справа.
-- `### Задача` — карточка: заголовок, строка пояснения, блоки кода до следующего заголовка.
-- У каждого блока кода есть кнопка «Копировать».
+How it renders:
+- `## Section` is a section heading and an entry in the table of contents.
+- `### Task` becomes a card: heading, one-line explanation, and code blocks up to the next heading.
+- Every code block gets a "Copy" button.
 
-## Структура
+## Layout
 
 ```
-content/                     шпаргалки (.md) — единственное, что нужно менять
-site/                        index.html, style.css, app.js — сам сайт
-scripts/build.py             проверка frontmatter + сборка в public/
-.github/workflows/pages.yml  сборка и публикация на GitHub Pages
+content/                     cheatsheets (.md), the only thing you normally edit
+site/                        index.html, style.css, app.js: the site itself
+scripts/build.py             frontmatter validation + build into public/
+.github/workflows/pages.yml  build and publish to GitHub Pages
 ```
 
-Новая категория: добавить её в `CATEGORIES` в `scripts/build.py` и подпись в `site/app.js`.
+To add a category, add it to `CATEGORIES` in `scripts/build.py` and give it a label in `site/app.js`.
 
-## Первый запуск на GitHub
+## Hosting
 
-1. Создать пустой репозиторий на GitHub (без README, .gitignore и лицензии).
-2. В этой папке:
-   ```bash
-   git init -b main
-   git add .
-   git commit -m "Initial cheatsheet site"
-   git remote add origin https://github.com/<username>/cheatsheets.git
-   git push -u origin main
-   ```
-3. В репозитории: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-   Затем **Actions → Pages → Run workflow** (или просто следующий пуш).
-4. Адрес сайта: `https://<username>.github.io/cheatsheets/` — он же виден в Settings → Pages.
+The repository is `infanss/cheatsheets` and GitHub Pages is set to deploy from GitHub Actions
+(Settings → Pages → Source: GitHub Actions). Every push to `main` redeploys the site;
+pull requests only validate the content.
 
-GitHub Pages для приватного репозитория доступен только на платном плане (Pro и выше);
-на бесплатном аккаунте репозиторий должен быть публичным. Сайт Pages в любом случае открыт всем.
-
-Локально нужен только Python 3 и `pyyaml` (`pip install pyyaml`).
+Locally you only need Python 3 and `pyyaml` (`pip install pyyaml`).

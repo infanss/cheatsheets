@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Python &amp; R Cheatsheets</title>
-  <meta name="description" content="Личный справочник по Python и R для health data science и биоинформатики.">
+  <meta name="description" content="Personal Python and R reference for health data science and bioinformatics.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -22,30 +22,30 @@
 </head>
 <body>
   <div class="layout">
-    <aside class="sidebar" id="sidebar" aria-label="Навигация">
+    <aside class="sidebar" id="sidebar" aria-label="Navigation">
       <div class="brand">
         <a href="#/" class="brand-link">
           <span class="brand-mark" aria-hidden="true">{ }</span>
           <span>Cheatsheets</span>
         </a>
-        <button class="icon-btn" id="theme-btn" type="button" title="Тема: авто" aria-label="Переключить тему"></button>
+        <button class="icon-btn" id="theme-btn" type="button" title="Theme: auto" aria-label="Toggle theme"></button>
       </div>
 
-      <div class="lang-switch" role="tablist" aria-label="Язык">
+      <div class="lang-switch" role="tablist" aria-label="Language">
         <button type="button" role="tab" data-lang="python">Python <span class="count"></span></button>
         <button type="button" role="tab" data-lang="r">R <span class="count"></span></button>
       </div>
 
       <div class="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-        <input id="search" type="search" placeholder="Поиск по шпаргалкам" autocomplete="off" spellcheck="false">
+        <input id="search" type="search" placeholder="Search cheatsheets" autocomplete="off" spellcheck="false">
         <kbd>/</kbd>
       </div>
 
       <section class="pkg-filter">
         <div class="section-label">
-          <span>Пакеты</span>
-          <button type="button" class="link-btn" id="pkg-clear" hidden>сбросить</button>
+          <span>Packages</span>
+          <button type="button" class="link-btn" id="pkg-clear" hidden>clear</button>
         </div>
         <div class="chips" id="chips"></div>
       </section>
@@ -58,7 +58,7 @@
 
     <main class="main">
       <header class="topbar">
-        <button class="icon-btn" id="menu-btn" type="button" aria-label="Меню">
+        <button class="icon-btn" id="menu-btn" type="button" aria-label="Menu">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
         <span class="topbar-title" id="topbar-title">Cheatsheets</span>

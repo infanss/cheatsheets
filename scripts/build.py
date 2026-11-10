@@ -13,6 +13,7 @@ Usage:
 import argparse
 import datetime as dt
 import functools
+import hashlib
 import http.server
 import json
 import re
@@ -29,7 +30,7 @@ PUBLIC = ROOT / "public"
 
 LANGS = {"python", "r", "both"}
 CATEGORIES = {
-    "data", "statistics", "causal", "omop", "bioinformatics",
+    "basics", "data", "statistics", "causal", "omop", "bioinformatics",
     "visualization", "reproducibility", "ml",
 }
 LEVELS = {"beginner", "intermediate", "advanced"}
@@ -114,6 +115,15 @@ def collect():
     return items, problems
 
 
+def bust_cache(html_path, assets):
+    """Append ?v=<content hash> to asset links so browsers pick up new versions."""
+    html = html_path.read_text(encoding="utf-8")
+    for name in assets:
+        digest = hashlib.sha1((html_path.parent / name).read_bytes()).hexdigest()[:10]
+        html = html.replace(f'"{name}"', f'"{name}?v={digest}"')
+    html_path.write_text(html, encoding="utf-8")
+
+
 def build():
     items, problems = collect()
     print(f"{len(items)} cheatsheet(s), {problems} with errors")
@@ -122,6 +132,7 @@ def build():
     if PUBLIC.exists():
         shutil.rmtree(PUBLIC)
     shutil.copytree(SITE, PUBLIC)
+    bust_cache(PUBLIC / "index.html", ["style.css", "app.js"])
     data = {
         "generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "items": items,

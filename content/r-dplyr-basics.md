@@ -1,40 +1,36 @@
 ---
-title: "dplyr + tidyr: базовые операции"
+title: "dplyr basics"
 slug: r-dplyr-basics
 lang: r
 category: data
-tags: [dplyr, tidyr, tidyverse, wrangling, mhedas]
+tags: [dplyr, tidyverse, wrangling, mhedas]
 level: beginner
 packages:
   - name: dplyr
     version: "1.2.1"
-  - name: tidyr
-    version: "1.3.2"
 language_version: "R 4.6"
-last_verified: "2026-10-28"
-summary: "Фильтрация, группировки, джойны и reshape в tidyverse — с современным синтаксисом .by, join_by и across."
+last_verified: "2026-11-10"
+summary: "Filter, mutate, summarise and join data frames with modern dplyr syntax: .by, join_by and across."
 sources:
   - title: "dplyr reference"
     url: "https://dplyr.tidyverse.org/reference/index.html"
-  - title: "tidyr reference"
-    url: "https://tidyr.tidyverse.org/reference/index.html"
 ---
 
 ## TL;DR
-- Нативный пайп `|>` вместо `%>%` (R >= 4.1).
-- Группировка на одну операцию — аргумент `.by`, без `group_by()` / `ungroup()`.
-- Ключи джойна — через `join_by()`, кардинальность — через `relationship`.
-- Одна функция на много колонок — `across()` + лямбда `\(x)`.
+- Use the native pipe `|>` instead of `%>%` (R >= 4.1).
+- Group for a single operation with `.by`, no `group_by()` / `ungroup()` needed.
+- Specify join keys with `join_by()` and expected cardinality with `relationship`.
+- Apply one function to many columns with `across()` and a `\(x)` lambda.
 
-## Установка и импорт
+## Install and load
 ```r
-install.packages(c("dplyr", "tidyr"))
+install.packages("dplyr")
 library(dplyr)
-library(tidyr)
 ```
 
-## Основные операции
-### Игрушечные данные
+## Core operations
+### Toy data
+Two small tables used in every example below.
 ```r
 patients <- tibble(
   patient_id = 1:5,
@@ -49,15 +45,15 @@ visits <- tibble(
 glimpse(patients)
 ```
 
-### Фильтрация строк и выбор колонок
-Несколько условий через запятую = AND. Строки с `NA` в условии отбрасываются.
+### Filter rows, select columns
+Comma-separated conditions are combined with AND. Rows where a condition is `NA` are dropped.
 ```r
 patients |> filter(sex == "F", age > 30)
 patients |> select(patient_id, starts_with("s"))
 ```
 
-### Новая колонка
-`case_when` вместо вложенных `ifelse`; `.default` — значение «иначе».
+### Add a column
+`case_when` replaces nested `ifelse`; `.default` is the "otherwise" value.
 ```r
 patients |>
   mutate(age_group = case_when(
@@ -67,8 +63,8 @@ patients |>
   ))
 ```
 
-### Группировка и агрегация
-`.by` группирует только для этой операции — результат не остаётся сгруппированным.
+### Group and summarise
+`.by` groups for this call only, so the result is never left grouped.
 ```r
 patients |>
   summarise(n = n(), mean_age = mean(age, na.rm = TRUE), .by = site)
@@ -77,51 +73,43 @@ patients |> count(sex, site)
 patients |> slice_max(age, n = 1, by = site)
 ```
 
-### Пропуски
+### Fill missing values with another value
+`coalesce` takes the first non-missing value, element by element.
 ```r
 patients |> mutate(age = coalesce(age, median(age, na.rm = TRUE)))
-patients |> replace_na(list(age = 0))
-patients |> drop_na(age)
 ```
 
-### Джойны
-`relationship` падает с ошибкой, если кардинальность не та, что вы ожидали.
+### Joins
+`relationship` throws an error if the cardinality is not what you expect.
 ```r
 patients |> left_join(visits, by = join_by(patient_id), relationship = "one-to-many")
 patients |> anti_join(visits, by = join_by(patient_id))  # patients without visits
 ```
 
-### Wide ↔ long
-```r
-long <- patients |> pivot_longer(cols = c(age), names_to = "var", values_to = "val")
-long |> pivot_wider(names_from = var, values_from = val)
-```
-
-### Одна операция на много колонок
+### One operation on many columns
 ```r
 patients |> mutate(across(where(is.numeric), \(x) x / 10))
 ```
 
-### Сортировка
+### Sort
 ```r
 patients |> arrange(site, desc(age))
 ```
 
-## Типичные ошибки и ловушки
-- **`filter` и `NA`** — строки, где условие даёт `NA`, молча выкидываются. Если они нужны: `filter(age > 30 | is.na(age))`.
-- **Забытый `ungroup()`** — после `group_by()` датафрейм остаётся сгруппированным и следующие `mutate` считаются по группам. Используйте `.by`.
-- **Размножение строк при джойне** — ставьте `relationship = "one-to-one"` / `"many-to-one"`, чтобы dplyr остановил вас.
-- **`mean()` без `na.rm = TRUE`** — один `NA` превращает результат в `NA`.
+## Common pitfalls
+- **`filter` and `NA`**: rows where the condition evaluates to `NA` are silently dropped. To keep them: `filter(age > 30 | is.na(age))`.
+- **Forgotten `ungroup()`**: after `group_by()` the data frame stays grouped and later `mutate` calls run per group. Prefer `.by`.
+- **Rows multiplied by a join**: set `relationship = "one-to-one"` or `"many-to-one"` so dplyr stops you.
+- **`mean()` without `na.rm = TRUE`**: a single `NA` makes the result `NA`.
 
-## Старое → новое
-| Было (deprecated) | Сейчас | С версии |
+## Old → new
+| Old (superseded) | Now | Since |
 |---|---|---|
 | `group_by() \|> summarise() \|> ungroup()` | `summarise(..., .by = x)` | dplyr 1.1.0 |
 | `by = c("a" = "b")` | `by = join_by(a == b)` | dplyr 1.1.0 |
 | `mutate_at()`, `summarise_if()` | `across()` | dplyr 1.0.0 |
-| `gather()` / `spread()` | `pivot_longer()` / `pivot_wider()` | tidyr 1.0.0 |
-| `TRUE ~ x` в `case_when` | `.default = x` | dplyr 1.1.0 |
+| `TRUE ~ x` in `case_when` | `.default = x` | dplyr 1.1.0 |
 
-## Дальше читать
-- [dplyr reference](https://dplyr.tidyverse.org/reference/index.html) — все функции.
-- [R for Data Science, 2e](https://r4ds.hadley.nz/) — главы про трансформацию данных.
+## Further reading
+- [dplyr reference](https://dplyr.tidyverse.org/reference/index.html): every function.
+- [R for Data Science, 2e](https://r4ds.hadley.nz/): the data transformation chapters.

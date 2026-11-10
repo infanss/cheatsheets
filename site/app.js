@@ -1,20 +1,21 @@
 "use strict";
 
 const CATEGORIES = [
-  ["data", "Данные"],
-  ["statistics", "Статистика"],
+  ["basics", "Language basics"],
+  ["data", "Data wrangling"],
+  ["statistics", "Statistics"],
   ["causal", "Causal inference"],
   ["omop", "OMOP / OHDSI"],
-  ["bioinformatics", "Биоинформатика"],
-  ["visualization", "Визуализация"],
-  ["reproducibility", "Воспроизводимость"],
+  ["bioinformatics", "Bioinformatics"],
+  ["visualization", "Visualization"],
+  ["reproducibility", "Reproducibility"],
   ["ml", "Machine learning"],
 ];
 const CATEGORY_LABEL = Object.fromEntries(CATEGORIES);
-const LEVEL_LABEL = { beginner: "начальный", intermediate: "средний", advanced: "продвинутый" };
+const LEVEL_LABEL = { beginner: "beginner", intermediate: "intermediate", advanced: "advanced" };
 const LANG_LABEL = { python: "Python", r: "R", both: "Python + R" };
 const THEMES = ["auto", "light", "dark"];
-const THEME_LABEL = { auto: "Тема: авто", light: "Тема: светлая", dark: "Тема: тёмная" };
+const THEME_LABEL = { auto: "Theme: auto", light: "Theme: light", dark: "Theme: dark" };
 
 const state = {
   items: [],
@@ -127,7 +128,7 @@ function renderChips() {
   const names = [...counts.keys()].sort((a, b) => counts.get(b) - counts.get(a) || a.localeCompare(b));
   $("#chips").innerHTML = names.length
     ? names.map((n) => `<button type="button" class="chip${state.packages.has(n) ? " on" : ""}" data-pkg="${esc(n)}">${esc(n)}<span>${counts.get(n)}</span></button>`).join("")
-    : `<span class="muted small">Пока нет пакетов</span>`;
+    : `<span class="muted small">No packages yet</span>`;
   $("#pkg-clear").hidden = state.packages.size === 0;
 }
 
@@ -136,7 +137,7 @@ function renderNav() {
   const nav = $("#nav");
   if (!entries.length) {
     const any = forLang(state.lang).length > 0;
-    nav.innerHTML = `<p class="nav-empty">${any ? "Ничего не найдено" : `Для ${LANG_LABEL[state.lang]} шпаргалок пока нет`}</p>`;
+    nav.innerHTML = `<p class="nav-empty">${any ? "Nothing found" : `No ${LANG_LABEL[state.lang]} cheatsheets yet`}</p>`;
     return;
   }
   nav.innerHTML = groupByCategory(entries).map(([cat, list]) => `
@@ -147,7 +148,7 @@ function renderNav() {
           <li>
             <a href="${href(state.lang, it.slug)}" class="nav-item${state.current === it ? " active" : ""}">
               <span class="nav-title">${esc(it.title)}${it.lang === "both" ? ` <span class="tag-both">Py+R</span>` : ""}</span>
-              <span class="nav-sub">${esc(it.packages.map((p) => p.name).join(", ") || categoryLabel(it.category))}${bodyOnly ? " · найдено в тексте" : ""}</span>
+              <span class="nav-sub">${esc(it.packages.map((p) => p.name).join(", ") || categoryLabel(it.category))}${bodyOnly ? " · match in text" : ""}</span>
             </a>
           </li>`).join("")}
       </ul>
@@ -157,7 +158,7 @@ function renderNav() {
 function renderFoot() {
   if (!state.generated) return;
   const d = new Date(state.generated);
-  $("#sidebar-foot").textContent = `${state.items.length} шпаргалок · собрано ${d.toLocaleDateString("ru-RU")}`;
+  $("#sidebar-foot").textContent = `${state.items.length} ${plural(state.items.length)} · built ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`;
 }
 
 function renderSidebar() {
@@ -172,7 +173,7 @@ function pkgBadges(it, clickable) {
   return it.packages.map((p) => {
     const label = `${esc(p.name)}${p.version ? ` <span class="ver">${esc(p.version)}</span>` : ""}`;
     return clickable
-      ? `<button type="button" class="badge badge-pkg" data-pkg="${esc(p.name)}" title="Показать все шпаргалки с ${esc(p.name)}">${label}</button>`
+      ? `<button type="button" class="badge badge-pkg" data-pkg="${esc(p.name)}" title="Show all cheatsheets using ${esc(p.name)}">${label}</button>`
       : `<span class="badge badge-pkg">${label}</span>`;
   }).join("");
 }
@@ -185,15 +186,15 @@ function renderHome() {
 
   const groups = groupByCategory(entries);
   const filterNote = state.packages.size || state.query
-    ? `<p class="muted">Показано ${entries.length} из ${total} · фильтр: ${esc([...state.packages, state.query].filter(Boolean).join(", "))}</p>`
+    ? `<p class="muted">Showing ${entries.length} of ${total} · filter: ${esc([...state.packages, state.query].filter(Boolean).join(", "))}</p>`
     : "";
 
   $("#view").innerHTML = `
     <section class="home">
       <header class="home-head">
-        <p class="eyebrow">${total} ${plural(total, "шпаргалка", "шпаргалки", "шпаргалок")}</p>
+        <p class="eyebrow">${total} ${plural(total)}</p>
         <h1>${LANG_LABEL[state.lang]}</h1>
-        <p class="lede">Выберите шпаргалку слева или отфильтруйте по пакету. Новые файлы появляются здесь автоматически после пуша в GitHub.</p>
+        <p class="lede">Pick a cheatsheet on the left or filter by package. New files show up here automatically after a push to GitHub.</p>
         ${filterNote}
       </header>
       ${groups.length ? groups.map(([cat, list]) => `
@@ -211,15 +212,12 @@ function renderHome() {
                 </span>
               </a>`).join("")}
           </div>
-        </section>`).join("") : `<div class="empty"><p>Здесь пока пусто.</p><p class="muted">Положите <code>.md</code> файл в папку <code>content/</code> и запушьте.</p></div>`}
+        </section>`).join("") : `<div class="empty"><p>Nothing here yet.</p><p class="muted">Add a <code>.md</code> file to <code>content/</code> and push.</p></div>`}
     </section>`;
 }
 
-function plural(n, one, few, many) {
-  const m10 = n % 10, m100 = n % 100;
-  if (m10 === 1 && m100 !== 11) return one;
-  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
-  return many;
+function plural(n) {
+  return n === 1 ? "cheatsheet" : "cheatsheets";
 }
 
 function slugify(text, used) {
@@ -253,7 +251,7 @@ function enhanceCode(prose) {
     if (window.hljs && lang && hljs.getLanguage(lang)) hljs.highlightElement(code);
     const wrap = document.createElement("div");
     wrap.className = `code lang-${lang || "text"}`;
-    wrap.innerHTML = `<div class="code-head"><span>${esc(lang || "text")}</span><button type="button" class="copy-btn">Копировать</button></div>`;
+    wrap.innerHTML = `<div class="code-head"><span>${esc(lang || "text")}</span><button type="button" class="copy-btn">Copy</button></div>`;
     pre.before(wrap);
     wrap.appendChild(pre);
   }
@@ -280,16 +278,16 @@ function renderSheet(it) {
           ${pkgBadges(it, true)}
           ${it.lang === "both" ? `<span class="badge badge-both">Python + R</span>` : ""}
           ${it.language_version ? `<span class="badge">${esc(it.language_version)}</span>` : ""}
-          ${it.last_verified ? `<span class="badge badge-date" title="Дата проверки по документации">проверено ${esc(it.last_verified)}</span>` : ""}
+          ${it.last_verified ? `<span class="badge badge-date" title="Last checked against the official docs">verified ${esc(it.last_verified)}</span>` : ""}
         </div>
       </header>
       <div class="sheet-grid">
         <div class="prose" id="prose">${body}</div>
-        <aside class="toc" id="toc" aria-label="Содержание"></aside>
+        <aside class="toc" id="toc" aria-label="Table of contents"></aside>
       </div>
       ${sources.length ? `
         <footer class="sources">
-          <div class="section-label"><span>Источники</span></div>
+          <div class="section-label"><span>Sources</span></div>
           <ul>${sources.map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title || s.url)}</a></li>`).join("")}</ul>
         </footer>` : ""}
     </article>`;
@@ -331,7 +329,7 @@ function renderToc(headings) {
     $(".sheet-grid").classList.add("no-toc");
     return;
   }
-  toc.innerHTML = `<div class="section-label"><span>На странице</span></div><ul>${headings.map((h) =>
+  toc.innerHTML = `<div class="section-label"><span>On this page</span></div><ul>${headings.map((h) =>
     `<li class="toc-${h.tagName.toLowerCase()}"><a href="#${h.id}" data-target="${h.id}">${esc(h.textContent)}</a></li>`).join("")}</ul>`;
 
   // Active = last heading above the top area; at the very bottom, the last heading.
@@ -469,11 +467,11 @@ function bind() {
       const code = $("code", copy.closest(".code")).innerText;
       try {
         await navigator.clipboard.writeText(code);
-        copy.textContent = "Скопировано";
+        copy.textContent = "Copied";
       } catch {
-        copy.textContent = "Не удалось";
+        copy.textContent = "Copy failed";
       }
-      setTimeout(() => { copy.textContent = "Копировать"; }, 1500);
+      setTimeout(() => { copy.textContent = "Copy"; }, 1500);
       return;
     }
     const tocLink = e.target.closest(".toc a, .prose a[href^='#']");
@@ -509,7 +507,7 @@ async function init() {
     state.items = data.items || [];
     state.generated = data.generated;
   } catch (err) {
-    $("#view").innerHTML = `<div class="empty"><p>Не удалось загрузить <code>cheatsheets.json</code>.</p><p class="muted">Запустите <code>python scripts/build.py --serve</code> и откройте сайт через локальный сервер, а не как файл. (${esc(err.message)})</p></div>`;
+    $("#view").innerHTML = `<div class="empty"><p>Could not load <code>cheatsheets.json</code>.</p><p class="muted">Run <code>python scripts/build.py --serve</code> and open the site through the local server, not as a file. (${esc(err.message)})</p></div>`;
     return;
   }
   renderFoot();
