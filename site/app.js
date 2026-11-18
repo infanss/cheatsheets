@@ -68,6 +68,7 @@ function haystack(it) {
     it._hay = [
       it.title, it.summary, categoryLabel(it.category), it.category,
       ...(it.tags || []), ...(it.packages || []).map((p) => p.name),
+      ...(it.source_lessons || []),
     ].join(" ").toLowerCase();
     it._body = (it.body || "").toLowerCase();
   }
@@ -278,6 +279,7 @@ function renderSheet(it) {
           ${pkgBadges(it, true)}
           ${it.lang === "both" ? `<span class="badge badge-both">Python + R</span>` : ""}
           ${it.language_version ? `<span class="badge">${esc(it.language_version)}</span>` : ""}
+          ${(it.source_lessons || []).length ? `<span class="badge" title="MHEDAS course units">MHEDAS ${esc(it.source_lessons.join(", "))}</span>` : ""}
           ${it.last_verified ? `<span class="badge badge-date" title="Last checked against the official docs">verified ${esc(it.last_verified)}</span>` : ""}
         </div>
       </header>

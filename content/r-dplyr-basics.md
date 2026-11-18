@@ -3,13 +3,14 @@ title: "dplyr basics"
 slug: r-dplyr-basics
 lang: r
 category: data
-tags: [dplyr, tidyverse, wrangling, mhedas]
+tags: [dplyr, tidyverse, wrangling, joins, mhedas]
+source_lessons: [L2]
 level: beginner
 packages:
   - name: dplyr
     version: "1.2.1"
 language_version: "R 4.6"
-last_verified: "2026-11-10"
+last_verified: "2026-11-18"
 summary: "Filter, mutate, summarise and join data frames with modern dplyr syntax: .by, join_by and across."
 sources:
   - title: "dplyr reference"
@@ -50,6 +51,9 @@ Comma-separated conditions are combined with AND. Rows where a condition is `NA`
 ```r
 patients |> filter(sex == "F", age > 30)
 patients |> select(patient_id, starts_with("s"))
+patients |> select(where(is.numeric))
+patients |> rename(age_years = age)
+patients |> distinct(site, .keep_all = TRUE)   # first row per site
 ```
 
 ### Add a column
@@ -61,6 +65,9 @@ patients |>
     age < 60 ~ "40-60",
     .default = "60+"
   ))
+
+# Two outcomes: if_else is stricter about types than base ifelse
+patients |> mutate(older = if_else(age >= 50, "yes", "no"))
 ```
 
 ### Group and summarise
@@ -69,8 +76,11 @@ patients |>
 patients |>
   summarise(n = n(), mean_age = mean(age, na.rm = TRUE), .by = site)
 
-patients |> count(sex, site)
+patients |> count(sex, site, sort = TRUE)
 patients |> slice_max(age, n = 1, by = site)
+
+# Share of rows meeting a condition = mean of a logical
+patients |> summarise(share_over_50 = mean(age > 50, na.rm = TRUE), .by = sex)
 ```
 
 ### Fill missing values with another value
@@ -83,7 +93,8 @@ patients |> mutate(age = coalesce(age, median(age, na.rm = TRUE)))
 `relationship` throws an error if the cardinality is not what you expect.
 ```r
 patients |> left_join(visits, by = join_by(patient_id), relationship = "one-to-many")
-patients |> anti_join(visits, by = join_by(patient_id))  # patients without visits
+patients |> inner_join(visits, by = join_by(patient_id))  # matches only
+patients |> anti_join(visits, by = join_by(patient_id))   # patients without visits
 ```
 
 ### One operation on many columns
@@ -101,6 +112,7 @@ patients |> arrange(site, desc(age))
 - **Forgotten `ungroup()`**: after `group_by()` the data frame stays grouped and later `mutate` calls run per group. Prefer `.by`.
 - **Rows multiplied by a join**: set `relationship = "one-to-one"` or `"many-to-one"` so dplyr stops you.
 - **`mean()` without `na.rm = TRUE`**: a single `NA` makes the result `NA`.
+- **`sum(x, na.rm = TRUE)` on all-`NA` input returns `0`**: in registries that reads as "no cases" when the truth is "unknown". See the Base R descriptive statistics sheet for a safe helper.
 
 ## Old → new
 | Old (superseded) | Now | Since |

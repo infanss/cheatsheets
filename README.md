@@ -33,6 +33,7 @@ lang: r                          # python | r | both  (both shows up under both 
 category: statistics             # basics | data | statistics | causal | omop | bioinformatics | visualization | reproducibility | ml
 tags: [survival, cox]
 level: beginner                  # beginner | intermediate | advanced
+source_lessons: [L4]             # optional: MHEDAS course units, shown as a badge
 packages:                        # feeds the "Packages" filter
   - name: survival
     version: "x.y.z"

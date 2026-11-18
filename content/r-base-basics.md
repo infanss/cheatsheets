@@ -3,14 +3,15 @@ title: "Base R essentials"
 slug: r-base-basics
 lang: r
 category: basics
-tags: [base-r, swirl, vectors, functions, apply, mhedas]
+tags: [base-r, swirl, vectors, factors, functions, apply, pipe, mhedas]
+source_lessons: [L1]
 level: beginner
 packages:
   - name: base
     version: "4.6.1"
 language_version: "R 4.6"
-last_verified: "2026-11-10"
-summary: "The core of R without packages, following swirl's R Programming course: vectors, NA, subsetting, data frames, functions, the apply family, simulation, dates and base plots."
+last_verified: "2026-11-18"
+summary: "The core of R without packages: pipe, vectors, NA, subsetting, data frames, factors, functions, the apply family, simulation, dates and base plots."
 sources:
   - title: "swirl: R Programming course"
     url: "https://swirlstats.com/scn/rprog.html"
@@ -35,6 +36,14 @@ x / 2           # 6
 sqrt(16); abs(-5); log(10); exp(2)
 ```
 
+### Native pipe
+`|>` (R >= 4.1) passes the left side as the first argument. Use the `_` placeholder for a named argument.
+```r
+ages <- c(18, 22, 33, NA)
+ages |> mean(na.rm = TRUE) |> round(1)            # 24.3
+mtcars |> aggregate(mpg ~ cyl, data = _, FUN = mean)
+```
+
 ### Workspace and help
 ```r
 getwd()                # current working directory
@@ -43,7 +52,11 @@ list.files()           # files in the directory
 ls()                   # objects in memory
 rm(x)                  # remove an object
 ?mean                  # help page
+example(mean)          # run the examples from the help page
 help.search("mean")    # search the docs
+install.packages("dplyr")   # once per machine
+library(dplyr)              # once per session
+packageVersion("dplyr")
 ```
 
 ### Files
@@ -159,6 +172,24 @@ df <- cbind(df, score = c(8, 9))                              # add a column
 df <- rbind(df, data.frame(name = "Eva", age = 22, score = 7)) # add a row
 ```
 
+### Factors
+A factor stores categories as levels. Models compare each level with the reference (first) level.
+```r
+smoke <- factor(c(0, 1, 0), levels = 0:1, labels = c("no", "yes"))
+levels(smoke)                       # "no" "yes"
+smoke <- relevel(smoke, ref = "yes")
+levels(smoke)                       # "yes" "no"
+```
+
+### Lists
+A list holds elements of any type and length.
+```r
+obj <- list(name = "PBC", n = 418, ages = c(45, 51))
+obj$name                # "PBC"
+obj[["n"]]              # 418
+str(obj)
+```
+
 ### Look at the data
 ```r
 head(df); tail(df)      # first / last 6 rows
@@ -180,6 +211,12 @@ x < 6 | x > 12          # TRUE FALSE TRUE
 !(x > 8)                # TRUE FALSE FALSE
 any(x > 12)             # TRUE
 all(x > 0)              # TRUE
+```
+
+### Vectorized if: ifelse
+`NA` in the condition stays `NA` in the result.
+```r
+ifelse(c(4, 12, NA) >= 10, "high", "low")   # "low" "high" NA
 ```
 
 ## Functions
@@ -229,6 +266,20 @@ scores <- c(80, 90, 70, 100)
 groups <- c("A", "A", "B", "B")
 tapply(scores, groups, mean)    # A 85, B 85
 ```
+
+### apply: rows or columns of a matrix
+```r
+m <- matrix(1:12, nrow = 3)
+apply(m, 1, sum)                # per row: 22 26 30
+apply(m, 2, mean)               # per column: 2 5 8 11
+```
+
+### aggregate: a summary per group of a data frame
+```r
+aggregate(mpg ~ cyl, data = mtcars, FUN = mean)
+```
+
+Which one: `apply` for matrices, `lapply`/`sapply`/`vapply` for lists, `tapply` for one vector split by groups, `aggregate` for a data frame.
 
 ## Simulation
 ### Random numbers

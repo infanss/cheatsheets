@@ -3,13 +3,14 @@ title: "tidyr basics"
 slug: r-tidyr-basics
 lang: r
 category: data
-tags: [tidyr, tidyverse, reshape, missing-values, mhedas]
+tags: [tidyr, tidyverse, tidy-data, reshape, who, missing-values, mhedas]
+source_lessons: [L2]
 level: beginner
 packages:
   - name: tidyr
     version: "1.3.2"
 language_version: "R 4.6"
-last_verified: "2026-11-10"
+last_verified: "2026-11-18"
 summary: "Reshape between wide and long, handle missing values and split or combine columns with tidyr."
 sources:
   - title: "tidyr reference"
@@ -19,6 +20,7 @@ sources:
 ---
 
 ## TL;DR
+- Tidy data: every column is a variable, every row an observation, every cell one value.
 - `pivot_longer()` / `pivot_wider()` are the only reshape functions you need.
 - `complete()` makes implicit missing combinations explicit; `fill()` carries values down.
 - Split columns with `separate_wider_delim()`, glue them back with `unite()`.
@@ -53,6 +55,19 @@ Select the columns to stack; `values_drop_na = TRUE` drops empty cells.
 wide |> pivot_longer(cols = c(hb, glucose), names_to = "test", values_to = "value")
 wide |> pivot_longer(cols = -patient_id, names_to = "test", values_to = "value",
                      values_drop_na = TRUE)
+```
+
+### Several variables packed into column names: WHO data
+`tidyr::who` has columns like `new_sp_m014`: diagnosis `sp`, sex `m`, age `014`. `names_pattern` splits them in one step; `newrel` lacks the underscore, so the regex makes it optional.
+```r
+who_tidy <- who |>
+  pivot_longer(
+    cols = new_sp_m014:newrel_f65,
+    names_to = c("diagnosis", "sex", "age"),
+    names_pattern = "new_?(.*)_(.)(.*)",
+    values_to = "count",
+    values_drop_na = TRUE
+  )
 ```
 
 ### Fill gaps while pivoting
@@ -120,6 +135,7 @@ expand_grid(sex = c("F", "M"), age_group = c("<40", "40+"))
 - **`pivot_wider` creates list-columns**: there are duplicate rows for the same id and name. Fix the duplicates first or pass `values_fn = mean`.
 - **Split parts are text**: `separate_wider_delim()` returns character columns; convert them with `as.numeric()`.
 - **`values_fill` vs `replace_na`**: the first fills only missing combinations, the second replaces existing `NA`.
+- **Codes that look like numbers**: age groups such as `014` and `1524` must stay text, or the leading zero and the meaning are lost.
 
 ## Old → new
 | Old (superseded) | Now | Since |
