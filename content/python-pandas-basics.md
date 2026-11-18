@@ -1,5 +1,5 @@
 ---
-title: "pandas basics"
+title: "pandas"
 slug: python-pandas-basics
 lang: python
 category: data

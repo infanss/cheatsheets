@@ -46,7 +46,7 @@ identical(patients, restored)   # TRUE
 ## Saving plots
 ### PNG and PDF
 `res` is pixels per inch; PDF sizes are in inches.
-```r
+```r plot
 b <- MASS::birthwt
 
 png("birthweight.png", width = 1200, height = 800, res = 150)

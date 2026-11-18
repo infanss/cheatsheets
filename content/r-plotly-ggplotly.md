@@ -1,12 +1,12 @@
 ---
-title: "plotly: interactive ggplot2"
+title: "plotly"
 slug: r-plotly-ggplotly
 lang: r
 category: visualization
 tags: [plotly, interactive, ggplotly, tooltip, html, mhedas]
 source_lessons: [L3]
 level: beginner
-order: 4
+order: 3
 datasets: [survival::pbc]
 packages:
   - name: plotly
@@ -52,7 +52,7 @@ interactive_plot
 
 ### Save as HTML
 `selfcontained = TRUE` puts everything in one file you can email.
-```r
+```r plot
 htmlwidgets::saveWidget(interactive_plot, file = "pbc-interactive.html",
                         selfcontained = TRUE)
 ```

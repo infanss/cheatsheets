@@ -70,4 +70,4 @@ c(
 - **Metrics on training data**: they overstate performance on new patients; see [calibration and cross-validation](#/r/r-glm-calibration-validation).
 
 ## Further reading
-- [pROC: ROC curve and AUC](#/r/r-proc-roc-auc): how sensitivity and specificity change across all thresholds.
+- [pROC](#/r/r-proc-roc-auc): how sensitivity and specificity change across all thresholds.

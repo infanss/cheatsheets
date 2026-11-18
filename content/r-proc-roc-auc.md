@@ -1,5 +1,5 @@
 ---
-title: "pROC: ROC curve and AUC"
+title: "pROC"
 slug: r-proc-roc-auc
 lang: r
 category: statistics
@@ -34,7 +34,7 @@ library(pROC)
 ## Core operations
 ### ROC and AUC
 `levels = c(0, 1)`: 0 = controls, 1 = cases; `direction = "<"`: higher score means higher risk.
-```r
+```r plot
 b <- MASS::birthwt
 m <- glm(low ~ age + lwt + smoke + ht, family = binomial(), data = b)
 p <- predict(m, type = "response")

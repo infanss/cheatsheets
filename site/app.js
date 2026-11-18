@@ -249,7 +249,33 @@ function wrapBlocks(prose) {
   }
 }
 
-function enhanceCode(prose) {
+// ```r plot blocks are numbered in order, so the rendered output (built by
+// scripts/check_code.py --plots) can be placed right after each one.
+let plotBlock = 0;
+if (window.marked) {
+  marked.use({
+    renderer: {
+      code(code, info) {
+        if (!/\bplot\b/.test(info || "")) return false;
+        plotBlock += 1;
+        const lang = (info.match(/^\S+/) || [""])[0];
+        return `<pre data-plot="${plotBlock}"><code class="language-${esc(lang)}">${esc(code.replace(/\n$/, ""))}\n</code></pre>\n`;
+      },
+    },
+  });
+}
+
+function plotFigure(files) {
+  const fig = document.createElement("figure");
+  fig.className = "plot-output";
+  fig.innerHTML = files.map((f) => /\.html$/i.test(f)
+    ? `<iframe src="${esc(f)}" loading="lazy" title="Interactive output of the code above"></iframe>`
+    : `<img src="${esc(f)}" loading="lazy" alt="Plot produced by the code above">`).join("")
+    + `<figcaption>Output of the code above</figcaption>`;
+  return fig;
+}
+
+function enhanceCode(prose, plots) {
   for (const pre of $$("pre", prose)) {
     const code = $("code", pre);
     if (!code) continue;
@@ -260,7 +286,88 @@ function enhanceCode(prose) {
     wrap.innerHTML = `<div class="code-head"><span>${esc(lang || "text")}</span><button type="button" class="copy-btn">Copy</button></div>`;
     pre.before(wrap);
     wrap.appendChild(pre);
+    const files = pre.dataset.plot && plots && plots[pre.dataset.plot];
+    if (files && files.length) wrap.after(plotFigure(files));
   }
+}
+
+// Wrap each h2 and what follows it into a section, the unit the page filter hides.
+function sectionize(prose) {
+  for (const h2 of $$(":scope > h2", prose)) {
+    const sec = document.createElement("section");
+    sec.className = "sec";
+    h2.before(sec);
+    let node = h2;
+    while (node && !(node !== h2 && node.tagName === "H2")) {
+      const next = node.nextSibling;
+      sec.appendChild(node);
+      node = next;
+    }
+  }
+}
+
+// Page filter: hide cards, list items and table rows that do not contain every word.
+function filterSheet(query) {
+  const prose = $("#prose");
+  if (!prose) return;
+  const tokens = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const has = (el) => {
+    const text = el.textContent.toLowerCase();
+    return tokens.every((t) => text.includes(t));
+  };
+  let shownCards = 0, totalCards = 0, anyVisible = false;
+  for (const sec of $$(".sec", prose)) {
+    const h2 = $(":scope > h2", sec);
+    const all = !tokens.length || (h2 && has(h2));
+    let visible = false;
+    for (const el of sec.children) {
+      if (el === h2) continue;
+      const parts = el.matches("ul, ol") ? [...el.children]
+        : el.matches(".table-wrap") ? $$("tbody tr", el) : [el];
+      let shown = 0;
+      for (const part of parts) {
+        const ok = all || has(part);
+        part.hidden = !ok;
+        shown += ok;
+        if (part.classList.contains("block")) { totalCards += 1; shownCards += ok; }
+      }
+      if (parts[0] !== el) el.hidden = shown === 0;
+      visible = visible || shown > 0;
+    }
+    sec.hidden = !(all || visible);
+    anyVisible = anyVisible || !sec.hidden;
+  }
+  const count = $("#filter-count");
+  if (count) count.textContent = tokens.length ? `${shownCards} of ${totalCards} cards` : `${totalCards} cards`;
+  $("#filter-empty").hidden = anyVisible;
+  for (const a of $$("#toc a")) {
+    const target = document.getElementById(a.dataset.target);
+    a.parentElement.hidden = !target || !!target.closest("[hidden]");
+  }
+  highlightMatches(prose, tokens);
+  if (tocSpy) tocSpy();
+}
+
+function highlightMatches(root, tokens) {
+  if (!window.CSS || !CSS.highlights || typeof Highlight === "undefined") return;
+  CSS.highlights.delete("cs-match");
+  if (!tokens.length) return;
+  const ranges = [];
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (node.parentElement.closest("[hidden], .code-head")) continue;
+    const text = node.data.toLowerCase();
+    for (const t of tokens) {
+      for (let i = text.indexOf(t); i !== -1; i = text.indexOf(t, i + t.length)) {
+        const r = new Range();
+        r.setStart(node, i);
+        r.setEnd(node, i + t.length);
+        ranges.push(r);
+      }
+    }
+  }
+  CSS.highlights.set("cs-match", new Highlight(...ranges));
 }
 
 // Previous / next sheet in the same category, following the order field.
@@ -279,6 +386,7 @@ function renderSheet(it) {
   $("#topbar-title").textContent = it.title;
   document.title = `${it.title} · Cheatsheets`;
 
+  plotBlock = 0;
   const body = window.marked ? marked.parse(it.body, { gfm: true }) : `<pre>${esc(it.body)}</pre>`;
   const sources = (it.sources || []).filter((s) => s && s.url);
 
@@ -301,6 +409,14 @@ function renderSheet(it) {
           ${it.last_verified ? `<span class="badge badge-date" title="Last checked against the official docs">verified ${esc(it.last_verified)}</span>` : ""}
         </div>
       </header>
+      <div class="sheet-filter" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+        <input id="sheet-filter" type="search" placeholder="Filter this sheet: function, keyword…"
+               value="${esc(state.query)}" autocomplete="off" spellcheck="false" aria-label="Filter this sheet">
+        <span class="filter-count" id="filter-count"></span>
+        <kbd>F</kbd>
+      </div>
+      <p class="filter-empty" id="filter-empty" hidden>Nothing on this page matches. Press Esc to clear the filter.</p>
       <div class="sheet-grid">
         <div class="prose" id="prose">${body}</div>
         <aside class="toc" id="toc" aria-label="Table of contents"></aside>
@@ -323,7 +439,8 @@ function renderSheet(it) {
   for (const h of headings) h.id = slugify(h.textContent, used);
 
   wrapBlocks(prose);
-  enhanceCode(prose);
+  sectionize(prose);
+  enhanceCode(prose, it.plots);
   for (const table of $$("table", prose)) {
     const wrap = document.createElement("div");
     wrap.className = "table-wrap";
@@ -336,6 +453,7 @@ function renderSheet(it) {
   }
 
   renderToc(headings);
+  filterSheet(state.query);
   window.scrollTo(0, 0);
 }
 
@@ -359,7 +477,7 @@ function renderToc(headings) {
     const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
     let idx = 0;
     if (atBottom) idx = headings.length - 1;
-    else headings.forEach((h, i) => { if (h.getBoundingClientRect().top < 120) idx = i; });
+    else headings.forEach((h, i) => { if (h.offsetParent && h.getBoundingClientRect().top < 120) idx = i; });
     links.forEach((a, i) => a.classList.toggle("active", i === idx));
   };
   window.addEventListener("scroll", tocSpy, { passive: true });
@@ -459,6 +577,11 @@ function bind() {
     }
   });
   document.addEventListener("keydown", (e) => {
+    if ((e.key === "f" || e.key === "F") && !e.metaKey && !e.ctrlKey && $("#sheet-filter")
+        && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      $("#sheet-filter").focus();
+    }
     if (e.key === "/" && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
       e.preventDefault();
       openNav();
@@ -475,6 +598,17 @@ function bind() {
     renderChips();
     renderNav();
     if (!state.current) renderHome();
+  });
+
+  $("#view").addEventListener("input", (e) => {
+    if (e.target.id === "sheet-filter") filterSheet(e.target.value);
+  });
+  $("#view").addEventListener("keydown", (e) => {
+    if (e.target.id === "sheet-filter" && e.key === "Escape") {
+      e.target.value = "";
+      filterSheet("");
+      e.target.blur();
+    }
   });
 
   $("#view").addEventListener("click", async (e) => {

@@ -40,7 +40,7 @@ head(residuals(m, type = "deviance"))
 
 ### Calibration plot by risk decile
 Points on the dashed diagonal mean predicted risk matches the observed rate.
-```r
+```r plot
 bin <- cut(p, breaks = unique(quantile(p, seq(0, 1, 0.1))), include.lowest = TRUE)
 cal <- aggregate(data.frame(observed = b$low, predicted = p),
                  by = list(bin = bin), FUN = mean)
@@ -50,7 +50,7 @@ abline(0, 1, lty = 2)
 ```
 
 ### Binned residuals
-```r
+```r plot
 plot(cal$predicted, cal$observed - cal$predicted,
      xlab = "Mean predicted risk", ylab = "Observed - predicted")
 abline(h = 0, lty = 2)

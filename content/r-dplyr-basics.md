@@ -1,5 +1,5 @@
 ---
-title: "dplyr basics"
+title: "dplyr"
 slug: r-dplyr-basics
 lang: r
 category: data

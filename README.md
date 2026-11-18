@@ -8,9 +8,9 @@ Live site: https://infanss.github.io/cheatsheets/
 ## Adding a cheatsheet
 
 1. Add a file `content/{lang}-{topic}.md` (for example `content/r-survival-analysis.md`).
-2. Run its code examples and preview locally (optional):
+2. Run its code examples, render its plots and preview locally (optional):
    ```bash
-   python scripts/check_code.py "r-survival-*"
+   python scripts/check_code.py --plots plots "r-survival-*"
    python scripts/build.py --serve
    ```
    then open http://localhost:8000
@@ -29,7 +29,7 @@ Each file starts with YAML frontmatter, followed by regular Markdown (GFM: table
 
 ```yaml
 ---
-title: "Survival analysis in R"
+title: "survival"                # a sheet about one package is titled with just its name
 slug: r-survival-analysis        # = file name without .md, must be unique
 lang: r                          # python | r | both  (both shows up under both languages)
 category: statistics             # basics | data | statistics | causal | omop | bioinformatics | visualization | reproducibility | ml
@@ -59,6 +59,10 @@ How it renders:
 - Every code block gets a "Copy" button.
 - Sheets in a category are sorted by `order`, with Previous / Next links at the bottom.
 - Link to another sheet with `[text](#/r/r-lm-diagnostics)`; the build fails if the slug does not exist.
+- A filter box above each sheet hides cards, list items and table rows that do not match (shortcut: F).
+- Fence an R block as ```` ```r plot ```` to show its output after the code: every plot it draws,
+  plus any `.png`, `.gif`, `.svg` or `.html` file it saves (an htmlwidget is shown interactive).
+  The block must draw the plot itself, e.g. end with `p` rather than only `p <- ggplot(...)`.
 
 ## Code examples are tested
 
@@ -67,6 +71,7 @@ How it renders:
 - Interactive lines are skipped: `install.packages()`, `setwd()`, `?topic`, `help.search()`, `example()`.
 - A block whose first line is `# not run` is skipped, e.g. code that needs a database or a private file.
 - Packages are detected from `library()`, `pkg::` and `install.packages()` calls, so CI installs them automatically.
+- `--plots plots` also renders the ```` ```r plot ```` blocks into `plots/` (not committed; CI renders them for the site).
 - Locally it needs R and the packages installed; `--strict` also fails on warnings.
 
 ## Layout
@@ -75,7 +80,7 @@ How it renders:
 content/                     cheatsheets (.md), the only thing you normally edit
 site/                        index.html, style.css, app.js: the site itself
 scripts/build.py             frontmatter and link validation + build into public/
-scripts/check_code.py        runs every code example
+scripts/check_code.py        runs every code example and renders plots
 .github/workflows/pages.yml  run examples, build and publish to GitHub Pages
 ```
 

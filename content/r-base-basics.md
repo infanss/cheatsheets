@@ -311,7 +311,7 @@ as.POSIXct("2026-11-09 14:30:00", tz = "UTC")
 
 ## Base graphics
 ### Common plots
-```r
+```r plot
 x <- rnorm(100); y <- 2 * x + rnorm(100)
 plot(x, y, main = "My plot", xlab = "X", ylab = "Y", col = "blue", pch = 19)
 abline(lm(y ~ x))                      # regression line
@@ -322,7 +322,7 @@ barplot(table(c("a", "b", "b")))
 ```
 
 ### Several plots side by side
-```r
+```r plot
 par(mfrow = c(1, 2))
 hist(x); hist(y)
 par(mfrow = c(1, 1))                   # reset

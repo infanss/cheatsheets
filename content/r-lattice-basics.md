@@ -1,5 +1,5 @@
 ---
-title: "lattice basics"
+title: "lattice"
 slug: r-lattice-basics
 lang: r
 category: visualization
@@ -23,7 +23,7 @@ sources:
 - Formula `y ~ x | group` draws one panel per group.
 - Main functions: `xyplot()`, `histogram()`, `bwplot()`, `densityplot()`.
 - Inside a device or a loop, a lattice plot is drawn only when you `print()` it.
-- For layer-by-layer styling, ggplot2 is more flexible.
+- For layer-by-layer styling, [ggplot2](#/r/r-ggplot2-basics) is more flexible.
 
 ## Install and load
 ```r
@@ -34,13 +34,13 @@ b$smoke <- factor(b$smoke, levels = 0:1, labels = c("no", "yes"))
 
 ## Core operations
 ### Scatter plot per group
-```r
+```r plot
 xyplot(bwt ~ age | smoke, data = b,
        xlab = "Maternal age", ylab = "Birth weight (g)")
 ```
 
 ### Distributions per group
-```r
+```r plot
 histogram(~ bwt | smoke, data = b)
 bwplot(smoke ~ bwt, data = b)
 densityplot(~ bwt, groups = smoke, data = b, auto.key = TRUE)

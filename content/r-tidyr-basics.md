@@ -1,5 +1,5 @@
 ---
-title: "tidyr basics"
+title: "tidyr"
 slug: r-tidyr-basics
 lang: r
 category: data

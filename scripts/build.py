@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CONTENT = ROOT / "content"
 SITE = ROOT / "site"
 PUBLIC = ROOT / "public"
+PLOTS = ROOT / "plots"   # rendered by scripts/check_code.py --plots (not committed)
 
 LANGS = {"python", "r", "both"}
 CATEGORIES = {
@@ -136,6 +137,24 @@ def collect():
     return items, problems
 
 
+PLOT_BLOCK = re.compile(r"^```r[^\n]*\bplot\b", re.MULTILINE)
+
+
+def attach_plots(items):
+    """Map each ```r plot block number to its rendered files: {"1": ["plots/x-1-1.png"]}."""
+    for it in items:
+        slug, blocks = it["slug"], len(PLOT_BLOCK.findall(it["body"]))
+        found = {}
+        for f in PLOTS.glob(f"{slug}-*"):
+            m = re.fullmatch(rf"{re.escape(slug)}-(\d+)-(\d+)\.(png|gif|svg|html)", f.name)
+            if m:
+                found.setdefault(m.group(1), []).append((int(m.group(2)), f"plots/{f.name}"))
+        it["plots"] = {n: [path for _, path in sorted(files)] for n, files in found.items()}
+        for n in range(1, blocks + 1):
+            if str(n) not in it["plots"]:
+                print(f"warn  {it['file']}: plot block {n} produced no output")
+
+
 def bust_cache(html_path, assets):
     """Append ?v=<content hash> to asset links so browsers pick up new versions."""
     html = html_path.read_text(encoding="utf-8")
@@ -154,6 +173,12 @@ def build():
         shutil.rmtree(PUBLIC)
     shutil.copytree(SITE, PUBLIC)
     bust_cache(PUBLIC / "index.html", ["style.css", "app.js"])
+    if PLOTS.is_dir():
+        shutil.copytree(PLOTS, PUBLIC / "plots")
+        attach_plots(items)
+    else:
+        print("note: no plots/ folder, building without plot images "
+              "(run: python scripts/check_code.py --plots plots)")
     data = {
         "generated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "items": items,

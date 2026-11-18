@@ -47,8 +47,14 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           packages: ${{ steps.deps.outputs.r }}
-      - name: Run all code examples
-        run: python scripts/check_code.py
+      - name: Run all code examples and render plots
+        run: python scripts/check_code.py --plots plots
+      - uses: actions/upload-artifact@v7
+        with:
+          name: plots
+          path: plots
+          if-no-files-found: ignore
+          retention-days: 7
 
   build:
     needs: examples
@@ -59,6 +65,11 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install pyyaml
+      - uses: actions/download-artifact@v8
+        with:
+          name: plots
+          path: plots
+        continue-on-error: true   # no plot blocks yet = no artifact
       - name: Validate content
         if: github.event_name == 'pull_request'
         run: python scripts/build.py --check

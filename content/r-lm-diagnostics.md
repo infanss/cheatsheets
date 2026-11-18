@@ -40,7 +40,7 @@ m <- lm(log_bili ~ age + stage + albumin, data = pbc)
 
 ## Core operations
 ### The four standard plots
-```r
+```r plot
 op <- par(mfrow = c(2, 2))
 plot(m)
 par(op)

@@ -1,12 +1,12 @@
 ---
-title: "gganimate basics"
+title: "gganimate"
 slug: r-gganimate-basics
 lang: r
 category: visualization
 tags: [gganimate, gifski, animation, gif, mhedas]
 source_lessons: [L3]
 level: beginner
-order: 5
+order: 4
 packages:
   - name: gganimate
     version: "1.0.11"
@@ -33,10 +33,10 @@ library(gganimate)
 
 ## Core operations
 ### Reveal a line over time
-```r
+```r plot
 followup <- data.frame(day = c(0, 10, 20, 30), remaining = c(100, 82, 61, 47))
 
-p <- ggplot(followup, aes(day, remaining)) +
+p <- ggplot(followup, aes(day, remaining, group = 1)) +   # one line, revealed step by step
   geom_line() +
   geom_point() +
   labs(title = "Day {round(frame_along)}",

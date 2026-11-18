@@ -416,3 +416,49 @@ button.badge-pkg:hover { border-color: var(--accent); }
 @media (max-width: 560px) {
   .series-nav { grid-template-columns: 1fr; }
 }
+
+/* ---------- page filter ---------- */
+
+.sheet-filter {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 10px;
+  margin: -12px 0 24px; padding: 10px 0;
+  background: var(--bg);
+}
+.sheet-filter svg { flex: none; color: var(--text-3); }
+.sheet-filter input {
+  flex: 1; min-width: 0; max-width: 520px;
+  padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text);
+  font: inherit; font-size: 14px; outline: none;
+}
+.sheet-filter input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.filter-count { color: var(--text-3); font-size: 12px; white-space: nowrap; }
+.sheet-filter kbd {
+  padding: 0 6px; border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text-3); font-size: 11px; line-height: 18px;
+}
+.filter-empty {
+  padding: 16px; border: 1px dashed var(--border); border-radius: var(--radius);
+  color: var(--text-2); text-align: center;
+}
+.prose [hidden], .toc [hidden] { display: none !important; }
+::highlight(cs-match) { background: #ffd54a; color: #1d1d1b; }
+
+/* ---------- plot output ---------- */
+
+.plot-output {
+  margin: -4px 0 12px; padding: 10px;
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #fff;
+}
+.plot-output img { display: block; width: 100%; height: auto; margin: 0 auto; }
+.plot-output img + img { margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+.plot-output iframe { display: block; width: 100%; height: 480px; border: 0; }
+.plot-output figcaption { margin-top: 6px; color: #8a8a83; font-size: 11px; text-align: center; }
+
+@media (max-width: 860px) {
+  .sheet-filter { top: 53px; margin-top: -8px; }
+  .sheet-filter kbd { display: none; }
+  .plot-output iframe { height: 360px; }
+}

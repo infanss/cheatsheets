@@ -1,5 +1,5 @@
 ---
-title: "readr basics"
+title: "readr"
 slug: r-readr-basics
 lang: r
 category: data
