@@ -68,7 +68,7 @@ function haystack(it) {
     it._hay = [
       it.title, it.summary, categoryLabel(it.category), it.category,
       ...(it.tags || []), ...(it.packages || []).map((p) => p.name),
-      ...(it.source_lessons || []),
+      ...(it.source_lessons || []), ...(it.datasets || []),
     ].join(" ").toLowerCase();
     it._body = (it.body || "").toLowerCase();
   }
@@ -102,7 +102,12 @@ function groupByCategory(entries) {
   }
   return [...groups.entries()]
     .sort((a, b) => categoryRank(a[0]) - categoryRank(b[0]) || a[0].localeCompare(b[0]))
-    .map(([cat, list]) => [cat, list.sort((a, b) => a.it.title.localeCompare(b.it.title, "ru"))]);
+    .map(([cat, list]) => [cat, list.sort((a, b) => bySeries(a.it, b.it))]);
+}
+
+// Within a category: the order field (learning sequence), then title.
+function bySeries(a, b) {
+  return (a.order ?? 999) - (b.order ?? 999) || a.title.localeCompare(b.title, "en");
 }
 
 /* ---------- sidebar ---------- */
@@ -149,7 +154,7 @@ function renderNav() {
           <li>
             <a href="${href(state.lang, it.slug)}" class="nav-item${state.current === it ? " active" : ""}">
               <span class="nav-title">${esc(it.title)}${it.lang === "both" ? ` <span class="tag-both">Py+R</span>` : ""}</span>
-              <span class="nav-sub">${esc(it.packages.map((p) => p.name).join(", ") || categoryLabel(it.category))}${bodyOnly ? " · match in text" : ""}</span>
+              <span class="nav-sub">${esc(it.packages.map((p) => p.name).join(", ") || (it.datasets || []).join(", ") || categoryLabel(it.category))}${bodyOnly ? " · match in text" : ""}</span>
             </a>
           </li>`).join("")}
       </ul>
@@ -258,6 +263,18 @@ function enhanceCode(prose) {
   }
 }
 
+// Previous / next sheet in the same category, following the order field.
+function seriesNav(it) {
+  const list = forLang(state.lang).filter((x) => x.category === it.category).sort(bySeries);
+  const i = list.indexOf(it);
+  const prev = list[i - 1], next = list[i + 1];
+  if (!prev && !next) return "";
+  const link = (x, dir) => x
+    ? `<a class="series-link series-${dir}" href="${href(state.lang, x.slug)}"><span>${dir === "prev" ? "← Previous" : "Next →"}</span>${esc(x.title)}</a>`
+    : "<span></span>";
+  return `<nav class="series-nav" aria-label="${esc(categoryLabel(it.category))} series">${link(prev, "prev")}${link(next, "next")}</nav>`;
+}
+
 function renderSheet(it) {
   $("#topbar-title").textContent = it.title;
   document.title = `${it.title} · Cheatsheets`;
@@ -279,6 +296,7 @@ function renderSheet(it) {
           ${pkgBadges(it, true)}
           ${it.lang === "both" ? `<span class="badge badge-both">Python + R</span>` : ""}
           ${it.language_version ? `<span class="badge">${esc(it.language_version)}</span>` : ""}
+          ${(it.datasets || []).map((d) => `<span class="badge badge-data" title="Dataset used in the examples">data: ${esc(d)}</span>`).join("")}
           ${(it.source_lessons || []).length ? `<span class="badge" title="MHEDAS course units">MHEDAS ${esc(it.source_lessons.join(", "))}</span>` : ""}
           ${it.last_verified ? `<span class="badge badge-date" title="Last checked against the official docs">verified ${esc(it.last_verified)}</span>` : ""}
         </div>
@@ -292,6 +310,7 @@ function renderSheet(it) {
           <div class="section-label"><span>Sources</span></div>
           <ul>${sources.map((s) => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title || s.url)}</a></li>`).join("")}</ul>
         </footer>` : ""}
+      ${seriesNav(it)}
     </article>`;
 
   const prose = $("#prose");

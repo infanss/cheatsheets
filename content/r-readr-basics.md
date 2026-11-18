@@ -6,6 +6,7 @@ category: data
 tags: [readr, tidyverse, csv, import, export, mhedas]
 source_lessons: [L2]
 level: beginner
+order: 2
 packages:
   - name: readr
     version: "2.2.0"

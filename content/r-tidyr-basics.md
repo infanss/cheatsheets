@@ -6,6 +6,8 @@ category: data
 tags: [tidyr, tidyverse, tidy-data, reshape, who, missing-values, mhedas]
 source_lessons: [L2]
 level: beginner
+order: 4
+datasets: [tidyr::who]
 packages:
   - name: tidyr
     version: "1.3.2"

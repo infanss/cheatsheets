@@ -6,8 +6,10 @@ category: statistics
 tags: [classification, threshold, confusion-matrix, sensitivity, specificity, ppv, npv, mhedas]
 source_lessons: [L5]
 level: beginner
+order: 7
+datasets: [MASS::birthwt]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
 language_version: "R 4.6"
 last_verified: "2026-11-18"
@@ -65,7 +67,7 @@ c(
 - **Threshold chosen on the same data you report**: the metrics are optimistic. Choose it on training data or by clinical reasoning.
 - **Accuracy with a rare event**: predicting "no event" for everyone can look accurate.
 - **Zero denominator**: if no one is predicted positive, PPV is undefined (`NaN`), not 0.
-- **Metrics on training data**: they overstate performance on new patients; see the validation sheet.
+- **Metrics on training data**: they overstate performance on new patients; see [calibration and cross-validation](#/r/r-glm-calibration-validation).
 
 ## Further reading
-- See the pROC sheet for how sensitivity and specificity change across all thresholds.
+- [pROC: ROC curve and AUC](#/r/r-proc-roc-auc): how sensitivity and specificity change across all thresholds.

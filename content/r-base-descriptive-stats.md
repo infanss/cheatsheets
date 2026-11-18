@@ -6,8 +6,10 @@ category: statistics
 tags: [base-r, descriptives, missing-data, na, tables, mhedas]
 source_lessons: [L1, L2]
 level: beginner
+order: 1
+datasets: [MASS::birthwt]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
 language_version: "R 4.6"
 last_verified: "2026-11-18"

@@ -5,6 +5,7 @@ lang: python
 category: data
 tags: [pandas, dataframe, wrangling, mhedas]
 level: beginner
+order: 1
 packages:
   - name: pandas
     version: "3.0.3"

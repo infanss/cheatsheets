@@ -6,8 +6,10 @@ category: statistics
 tags: [glm, calibration, hosmer-lemeshow, cross-validation, brier, auc, mhedas]
 source_lessons: [L5]
 level: intermediate
+order: 9
+datasets: [MASS::birthwt]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
   - name: pROC
     version: "1.19.1"

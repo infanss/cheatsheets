@@ -6,11 +6,11 @@ category: visualization
 tags: [plotly, interactive, ggplotly, tooltip, html, mhedas]
 source_lessons: [L3]
 level: beginner
+order: 4
+datasets: [survival::pbc]
 packages:
   - name: plotly
     version: "4.12.1"
-  - name: htmlwidgets
-    version: "1.6.4"
 language_version: "R 4.6"
 last_verified: "2026-11-18"
 summary: "Turn a ggplot into an interactive chart with custom hover text, and save it as a standalone HTML file."

@@ -6,6 +6,8 @@ category: visualization
 tags: [lattice, trellis, panels, xyplot, mhedas]
 source_lessons: [L1]
 level: beginner
+order: 1
+datasets: [MASS::birthwt]
 packages:
   - name: lattice
     version: "0.22-9"

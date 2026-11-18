@@ -6,6 +6,8 @@ category: visualization
 tags: [ggplot2, tidyverse, geoms, distributions, mhedas]
 source_lessons: [L3]
 level: beginner
+order: 2
+datasets: [survival::pbc]
 packages:
   - name: ggplot2
     version: "4.0.4"

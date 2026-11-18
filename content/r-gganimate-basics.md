@@ -6,11 +6,10 @@ category: visualization
 tags: [gganimate, gifski, animation, gif, mhedas]
 source_lessons: [L3]
 level: beginner
+order: 5
 packages:
   - name: gganimate
     version: "1.0.11"
-  - name: gifski
-    version: "1.32.0-2"
 language_version: "R 4.6"
 last_verified: "2026-11-18"
 summary: "Animate a ggplot over time or across states, render it to GIF with gifski and save it."

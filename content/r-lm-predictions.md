@@ -6,8 +6,10 @@ category: statistics
 tags: [lm, predict, confidence-interval, prediction-interval, log-transform, mhedas]
 source_lessons: [L4]
 level: beginner
+order: 3
+datasets: [survival::pbc]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
 language_version: "R 4.6"
 last_verified: "2026-11-18"

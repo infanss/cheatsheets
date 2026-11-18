@@ -8,8 +8,9 @@ Live site: https://infanss.github.io/cheatsheets/
 ## Adding a cheatsheet
 
 1. Add a file `content/{lang}-{topic}.md` (for example `content/r-survival-analysis.md`).
-2. Preview locally (optional):
+2. Run its code examples and preview locally (optional):
    ```bash
+   python scripts/check_code.py "r-survival-*"
    python scripts/build.py --serve
    ```
    then open http://localhost:8000
@@ -17,7 +18,8 @@ Live site: https://infanss.github.io/cheatsheets/
    ```bash
    git add content/ && git commit -m "Add r-survival-analysis" && git push
    ```
-   GitHub Actions builds the site and publishes it to GitHub Pages in 1–2 minutes.
+   GitHub Actions runs every code example, then builds the site and publishes it to GitHub Pages.
+   If an example fails, the site is not updated and the failing file is shown in the Actions log.
 
 Files can also live in subfolders (`content/r/omop/...`); the build script searches for `.md` files recursively.
 
@@ -34,8 +36,10 @@ category: statistics             # basics | data | statistics | causal | omop | 
 tags: [survival, cox]
 level: beginner                  # beginner | intermediate | advanced
 source_lessons: [L4]             # optional: MHEDAS course units, shown as a badge
-packages:                        # feeds the "Packages" filter
-  - name: survival
+order: 2                         # optional: position in its category (learning sequence)
+datasets: [survival::pbc]        # optional: datasets the examples use, shown as badges
+packages:                        # feeds the "Packages" filter: only what the sheet teaches
+  - name: survival               # use "base R" for anything built into R (stats, utils, ...)
     version: "x.y.z"
 language_version: "R 4.6"
 last_verified: "2026-11-10"
@@ -53,14 +57,26 @@ How it renders:
 - `## Section` is a section heading and an entry in the table of contents.
 - `### Task` becomes a card: heading, one-line explanation, and code blocks up to the next heading.
 - Every code block gets a "Copy" button.
+- Sheets in a category are sorted by `order`, with Previous / Next links at the bottom.
+- Link to another sheet with `[text](#/r/r-lm-diagnostics)`; the build fails if the slug does not exist.
+
+## Code examples are tested
+
+`scripts/check_code.py` runs all ```` ```r ```` blocks of a sheet top to bottom in one R session
+(and ```` ```python ```` blocks in one Python process), in a temporary folder.
+- Interactive lines are skipped: `install.packages()`, `setwd()`, `?topic`, `help.search()`, `example()`.
+- A block whose first line is `# not run` is skipped, e.g. code that needs a database or a private file.
+- Packages are detected from `library()`, `pkg::` and `install.packages()` calls, so CI installs them automatically.
+- Locally it needs R and the packages installed; `--strict` also fails on warnings.
 
 ## Layout
 
 ```
 content/                     cheatsheets (.md), the only thing you normally edit
 site/                        index.html, style.css, app.js: the site itself
-scripts/build.py             frontmatter validation + build into public/
-.github/workflows/pages.yml  build and publish to GitHub Pages
+scripts/build.py             frontmatter and link validation + build into public/
+scripts/check_code.py        runs every code example
+.github/workflows/pages.yml  run examples, build and publish to GitHub Pages
 ```
 
 To add a category, add it to `CATEGORIES` in `scripts/build.py` and give it a label in `site/app.js`.
@@ -68,7 +84,7 @@ To add a category, add it to `CATEGORIES` in `scripts/build.py` and give it a la
 ## Hosting
 
 The repository is `infanss/cheatsheets` and GitHub Pages is set to deploy from GitHub Actions
-(Settings → Pages → Source: GitHub Actions). Every push to `main` redeploys the site;
-pull requests only validate the content.
+(Settings → Pages → Source: GitHub Actions). Every push to `main` runs the examples and
+redeploys the site; pull requests only run the examples and validate the content.
 
 Locally you only need Python 3 and `pyyaml` (`pip install pyyaml`).

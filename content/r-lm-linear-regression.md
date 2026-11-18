@@ -6,8 +6,10 @@ category: statistics
 tags: [lm, regression, formula, factors, interaction, mhedas]
 source_lessons: [L4]
 level: beginner
+order: 2
+datasets: [survival::pbc]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
 language_version: "R 4.6"
 last_verified: "2026-11-18"
@@ -66,7 +68,7 @@ exp(confint(m2))
 - **Changing reference level changes the coefficients, not the fit**: set it with `relevel()` so the comparison makes sense.
 - **Numeric codes for categories**: `stage` as a number forces a linear trend across stages.
 - **Main effects in an interaction model**: `age` alone is now the slope when `ascites = "no"`, not an average slope.
-- **Collinear predictors** inflate standard errors; check VIF (see the diagnostics sheet).
+- **Collinear predictors** inflate standard errors; check VIF (see [linear model diagnostics](#/r/r-lm-diagnostics)).
 
 ## Further reading
 - [lm() documentation](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/lm.html): arguments and value.

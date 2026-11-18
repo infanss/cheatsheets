@@ -6,6 +6,8 @@ category: visualization
 tags: [ggplot2, facets, smoothing, themes, ggsave, mhedas]
 source_lessons: [L3, L4]
 level: beginner
+order: 3
+datasets: [survival::pbc]
 packages:
   - name: ggplot2
     version: "4.0.4"

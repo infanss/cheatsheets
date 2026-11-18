@@ -6,6 +6,8 @@ category: statistics
 tags: [proc, roc, auc, discrimination, threshold, mhedas]
 source_lessons: [L5]
 level: beginner
+order: 8
+datasets: [MASS::birthwt]
 packages:
   - name: pROC
     version: "1.19.1"
@@ -54,7 +56,7 @@ coords(r, x = 0.30, input = "threshold",
 ## Common pitfalls
 - **Automatic direction**: without `direction`, `roc()` guesses it from the group medians, which can hide a model that ranks patients backwards.
 - **"Best" threshold is not clinically best**: Youden's J weighs false positives and false negatives equally.
-- **Training AUC is optimistic**: report cross-validated or external AUC (see the calibration and validation sheet).
+- **Training AUC is optimistic**: report cross-validated or external AUC (see [calibration and cross-validation](#/r/r-glm-calibration-validation)).
 
 ## Further reading
 - [pROC documentation](https://xrobin.github.io/pROC/): smoothing, comparing curves, partial AUC.

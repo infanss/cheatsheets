@@ -395,3 +395,24 @@ button.badge-pkg:hover { border-color: var(--accent); }
   .block { padding: 14px; }
   .prose h2, .prose h3 { scroll-margin-top: 64px; }
 }
+
+/* ---------- series navigation ---------- */
+
+.badge-data { font-family: var(--mono); }
+
+.series-nav {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border);
+}
+.series-link {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); font-weight: 600;
+}
+.series-link span { color: var(--text-3); font-size: 12px; font-weight: 500; }
+.series-link:hover { border-color: var(--accent); text-decoration: none; }
+.series-next { text-align: right; }
+
+@media (max-width: 560px) {
+  .series-nav { grid-template-columns: 1fr; }
+}

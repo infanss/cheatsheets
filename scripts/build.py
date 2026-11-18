@@ -68,7 +68,26 @@ def validate(path, meta):
     for pkg in meta.get("packages") or []:
         if not isinstance(pkg, dict) or not pkg.get("name"):
             errors.append("each entry in packages needs a 'name'")
+    if "order" in meta and not isinstance(meta["order"], int):
+        errors.append("order must be a whole number")
+    if not isinstance(meta.get("datasets") or [], list):
+        errors.append("datasets must be a list, e.g. [MASS::birthwt]")
     return errors, warnings
+
+
+INTERNAL_LINK = re.compile(r"\]\(#/(python|r)/([\w-]+)\)")
+
+
+def check_links(items):
+    """Every [text](#/lang/slug) link must point to an existing sheet."""
+    slugs = {it["slug"] for it in items}
+    problems = 0
+    for it in items:
+        for _, slug in INTERNAL_LINK.findall(it["body"]):
+            if slug not in slugs:
+                print(f"ERROR {it['file']}: link to unknown cheatsheet '{slug}'")
+                problems += 1
+    return problems
 
 
 def normalize(meta):
@@ -80,6 +99,7 @@ def normalize(meta):
         for p in out.get("packages") or []
     ]
     out["sources"] = out.get("sources") or []
+    out["datasets"] = [str(d) for d in out.get("datasets") or []]
     return out
 
 
@@ -112,6 +132,7 @@ def collect():
         item["file"] = str(rel)
         item["body"] = body
         items.append(item)
+    problems += check_links(items)
     return items, problems
 
 

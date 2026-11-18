@@ -6,10 +6,10 @@ category: basics
 tags: [base-r, io, csv, rds, png, pdf, mhedas]
 source_lessons: [L1]
 level: beginner
+order: 2
+datasets: [MASS::birthwt]
 packages:
-  - name: utils
-    version: "4.6.1"
-  - name: grDevices
+  - name: base R
     version: "4.6.1"
 language_version: "R 4.6"
 last_verified: "2026-11-18"

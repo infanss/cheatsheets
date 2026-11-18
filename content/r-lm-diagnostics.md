@@ -6,8 +6,10 @@ category: statistics
 tags: [lm, residuals, diagnostics, vif, cooks-distance, leverage, mhedas]
 source_lessons: [L4]
 level: intermediate
+order: 4
+datasets: [survival::pbc]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
   - name: car
     version: "3.1-5"

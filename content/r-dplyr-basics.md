@@ -6,6 +6,7 @@ category: data
 tags: [dplyr, tidyverse, wrangling, joins, mhedas]
 source_lessons: [L2]
 level: beginner
+order: 3
 packages:
   - name: dplyr
     version: "1.2.1"
@@ -112,7 +113,7 @@ patients |> arrange(site, desc(age))
 - **Forgotten `ungroup()`**: after `group_by()` the data frame stays grouped and later `mutate` calls run per group. Prefer `.by`.
 - **Rows multiplied by a join**: set `relationship = "one-to-one"` or `"many-to-one"` so dplyr stops you.
 - **`mean()` without `na.rm = TRUE`**: a single `NA` makes the result `NA`.
-- **`sum(x, na.rm = TRUE)` on all-`NA` input returns `0`**: in registries that reads as "no cases" when the truth is "unknown". See the Base R descriptive statistics sheet for a safe helper.
+- **`sum(x, na.rm = TRUE)` on all-`NA` input returns `0`**: in registries that reads as "no cases" when the truth is "unknown". See [Base R: descriptive statistics and NA](#/r/r-base-descriptive-stats) for a safe helper.
 
 ## Old → new
 | Old (superseded) | Now | Since |

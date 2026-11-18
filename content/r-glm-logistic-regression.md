@@ -6,11 +6,11 @@ category: statistics
 tags: [glm, logistic-regression, odds-ratio, logit, mhedas]
 source_lessons: [L5]
 level: beginner
+order: 6
+datasets: [MASS::birthwt]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
-  - name: MASS
-    version: "7.3-65"
 language_version: "R 4.6"
 last_verified: "2026-11-18"
 summary: "Fit a binomial GLM, turn coefficients into odds ratios with profile CIs, and get predicted probabilities."

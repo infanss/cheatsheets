@@ -1,5 +1,6 @@
-# Builds the site and publishes it with GitHub Pages on every push to main.
-# Pull requests only validate the content.
+# Runs every code example, then builds the site and publishes it with GitHub Pages
+# on every push to main. Pull requests only run the examples and validate the content.
+# If an example fails, the site is not updated.
 name: Pages
 
 on:
@@ -14,11 +15,43 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
+  examples:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - name: Find packages used by the examples
+        id: deps
+        run: |
+          {
+            echo "r<<EOF"
+            python scripts/check_code.py --list-r-packages | sed 's/^/any::/'
+            echo "EOF"
+            echo "py=$(python scripts/check_code.py --list-py-packages)"
+          } >> "$GITHUB_OUTPUT"
+      - name: Install Python packages
+        if: steps.deps.outputs.py != ''
+        run: pip install ${{ steps.deps.outputs.py }}
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-pandoc@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: ${{ steps.deps.outputs.r }}
+      - name: Run all code examples
+        run: python scripts/check_code.py
+
   build:
+    needs: examples
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

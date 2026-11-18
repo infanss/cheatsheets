@@ -6,8 +6,10 @@ category: statistics
 tags: [model-selection, anova, aic, step, likelihood-ratio, mhedas]
 source_lessons: [L4, L5]
 level: intermediate
+order: 5
+datasets: [survival::pbc, MASS::birthwt]
 packages:
-  - name: stats
+  - name: base R
     version: "4.6.1"
   - name: MASS
     version: "7.3-65"

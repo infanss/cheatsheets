@@ -6,13 +6,9 @@ category: data
 tags: [datasets, clinical, birthwt, juul, pbc, who, mhedas]
 source_lessons: [L1, L2, L3, L4, L5]
 level: beginner
-packages:
-  - name: MASS
-    version: "7.3-65"
-  - name: ISwR
-    version: "2.0-12"
-  - name: survival
-    version: "3.8-6"
+order: 1
+datasets: [MASS::birthwt, ISwR::juul, survival::pbc, tidyr::who]
+packages: []
 language_version: "R 4.6"
 last_verified: "2026-11-18"
 summary: "The four datasets used across MHEDAS units L1–L5: what is in them, how to load them and how to recode them before analysis."
