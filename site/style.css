@@ -22,6 +22,12 @@
   --tk-func: #2b5fa8;
   --tk-builtin: #7a4fb5;
 
+  /* purpose tags for package sheets */
+  --tag-basics: #5c5c57; --tag-basics-bg: #eeeeea;
+  --tag-data: #2f7d32; --tag-data-bg: #e4f2e5;
+  --tag-statistics: #2b6cb0; --tag-statistics-bg: #e6eef8;
+  --tag-visualization: #b3541e; --tag-visualization-bg: #f9ebe1;
+  --tag-other: #7a4fb5; --tag-other-bg: #efe8f8;
   --radius: 10px;
   --sidebar-w: 300px;
   --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -49,6 +55,11 @@
     --tk-number: #e6a65c;
     --tk-func: #82b4f0;
     --tk-builtin: #b99ae8;
+    --tag-basics: #b5b5ae; --tag-basics-bg: #2a2b28;
+    --tag-data: #8fd19e; --tag-data-bg: #1d2e21;
+    --tag-statistics: #8ab8ee; --tag-statistics-bg: #1f2a38;
+    --tag-visualization: #f0a774; --tag-visualization-bg: #35261c;
+    --tag-other: #c3a6ee; --tag-other-bg: #2b2438;
     color-scheme: dark;
   }
 }
@@ -72,6 +83,11 @@
   --tk-number: #e6a65c;
   --tk-func: #82b4f0;
   --tk-builtin: #b99ae8;
+  --tag-basics: #b5b5ae; --tag-basics-bg: #2a2b28;
+  --tag-data: #8fd19e; --tag-data-bg: #1d2e21;
+  --tag-statistics: #8ab8ee; --tag-statistics-bg: #1f2a38;
+  --tag-visualization: #f0a774; --tag-visualization-bg: #35261c;
+  --tag-other: #c3a6ee; --tag-other-bg: #2b2438;
   color-scheme: dark;
 }
 
@@ -462,3 +478,22 @@ button.badge-pkg:hover { border-color: var(--accent); }
   .sheet-filter kbd { display: none; }
   .plot-output iframe { height: 360px; }
 }
+
+/* ---------- package purpose tags ---------- */
+
+.cat-tag {
+  --fg: var(--tag-other); --bg: var(--tag-other-bg);
+  display: inline-block; margin-left: 8px; padding: 0 7px;
+  border-radius: 999px; background: var(--bg); color: var(--fg);
+  font: 600 10px/18px var(--font); letter-spacing: .02em; vertical-align: 2px;
+  white-space: nowrap;
+}
+.cat-basics { --fg: var(--tag-basics); --bg: var(--tag-basics-bg); }
+.cat-data { --fg: var(--tag-data); --bg: var(--tag-data-bg); }
+.cat-statistics { --fg: var(--tag-statistics); --bg: var(--tag-statistics-bg); }
+.cat-visualization { --fg: var(--tag-visualization); --bg: var(--tag-visualization-bg); }
+
+.nav-packages .nav-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.nav-packages .nav-title .cat-tag { margin-left: 0; vertical-align: 0; }
+.nav-packages .nav-sub { font-size: 10.5px; }
+.card-title .cat-tag { vertical-align: 3px; }

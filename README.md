@@ -58,6 +58,8 @@ How it renders:
 - `### Task` becomes a card: heading, one-line explanation, and code blocks up to the next heading.
 - Every code block gets a "Copy" button.
 - Sheets in a category are sorted by `order`, with Previous / Next links at the bottom.
+- A sheet whose title is exactly one of its package names is a package sheet: it is listed in the
+  "Packages" section with a coloured tag for its category (Data, Statistics, Visualization...).
 - Link to another sheet with `[text](#/r/r-lm-diagnostics)`; the build fails if the slug does not exist.
 - A filter box above each sheet hides cards, list items and table rows that do not match (shortcut: F).
 - Fence an R block as ```` ```r plot ```` to show its output after the code: every plot it draws,

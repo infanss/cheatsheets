@@ -105,6 +105,34 @@ function groupByCategory(entries) {
     .map(([cat, list]) => [cat, list.sort((a, b) => bySeries(a.it, b.it))]);
 }
 
+// A package sheet is titled with exactly the name of the package it teaches.
+function isPackageSheet(it) {
+  return it.packages.some((p) => p.name === it.title);
+}
+
+const PURPOSE = {
+  basics: "Basics", data: "Data", statistics: "Statistics", causal: "Causal",
+  omop: "OMOP", bioinformatics: "Bioinformatics", visualization: "Visualization",
+  reproducibility: "Reproducibility", ml: "ML",
+};
+
+function purposeTag(it) {
+  return `<span class="cat-tag cat-${esc(it.category)}" title="${esc(categoryLabel(it.category))}">${esc(PURPOSE[it.category] || categoryLabel(it.category))}</span>`;
+}
+
+// Sidebar and home: every package sheet in one "Packages" group (sorted by purpose),
+// then the topic sheets grouped by category.
+function navGroups(entries) {
+  const pkgs = entries.filter((e) => isPackageSheet(e.it)).sort((a, b) =>
+    categoryRank(a.it.category) - categoryRank(b.it.category) || bySeries(a.it, b.it));
+  const topics = groupByCategory(entries.filter((e) => !isPackageSheet(e.it)));
+  return pkgs.length ? [["packages", pkgs], ...topics] : topics;
+}
+
+function groupLabel(key) {
+  return key === "packages" ? "Packages" : categoryLabel(key);
+}
+
 // Within a category: the order field (learning sequence), then title.
 function bySeries(a, b) {
   return (a.order ?? 999) - (b.order ?? 999) || a.title.localeCompare(b.title, "en");
@@ -146,17 +174,23 @@ function renderNav() {
     nav.innerHTML = `<p class="nav-empty">${any ? "Nothing found" : `No ${LANG_LABEL[state.lang]} cheatsheets yet`}</p>`;
     return;
   }
-  nav.innerHTML = groupByCategory(entries).map(([cat, list]) => `
-    <div class="nav-group">
-      <div class="section-label"><span>${esc(categoryLabel(cat))}</span><span class="muted">${list.length}</span></div>
+  nav.innerHTML = navGroups(entries).map(([key, list]) => `
+    <div class="nav-group${key === "packages" ? " nav-packages" : ""}">
+      <div class="section-label"><span>${esc(groupLabel(key))}</span><span class="muted">${list.length}</span></div>
       <ul>
-        ${list.map(({ it, bodyOnly }) => `
+        ${list.map(({ it, bodyOnly }) => {
+          const pkg = key === "packages";
+          const version = pkg ? (it.packages.find((p) => p.name === it.title) || {}).version : "";
+          const sub = pkg ? (version || "")
+            : it.packages.map((p) => p.name).join(", ") || (it.datasets || []).join(", ") || categoryLabel(it.category);
+          return `
           <li>
             <a href="${href(state.lang, it.slug)}" class="nav-item${state.current === it ? " active" : ""}">
-              <span class="nav-title">${esc(it.title)}${it.lang === "both" ? ` <span class="tag-both">Py+R</span>` : ""}</span>
-              <span class="nav-sub">${esc(it.packages.map((p) => p.name).join(", ") || (it.datasets || []).join(", ") || categoryLabel(it.category))}${bodyOnly ? " · match in text" : ""}</span>
+              <span class="nav-title">${esc(it.title)}${it.lang === "both" ? ` <span class="tag-both">Py+R</span>` : ""}${pkg ? purposeTag(it) : ""}</span>
+              <span class="nav-sub">${esc(sub)}${bodyOnly ? " · match in text" : ""}</span>
             </a>
-          </li>`).join("")}
+          </li>`;
+        }).join("")}
       </ul>
     </div>`).join("");
 }
@@ -190,7 +224,7 @@ function renderHome() {
   $("#topbar-title").textContent = LANG_LABEL[state.lang];
   document.title = `${LANG_LABEL[state.lang]} · Cheatsheets`;
 
-  const groups = groupByCategory(entries);
+  const groups = navGroups(entries);
   const filterNote = state.packages.size || state.query
     ? `<p class="muted">Showing ${entries.length} of ${total} · filter: ${esc([...state.packages, state.query].filter(Boolean).join(", "))}</p>`
     : "";
@@ -203,13 +237,13 @@ function renderHome() {
         <p class="lede">Pick a cheatsheet on the left or filter by package. New files show up here automatically after a push to GitHub.</p>
         ${filterNote}
       </header>
-      ${groups.length ? groups.map(([cat, list]) => `
+      ${groups.length ? groups.map(([key, list]) => `
         <section class="home-group">
-          <h2>${esc(categoryLabel(cat))}</h2>
+          <h2>${esc(groupLabel(key))}</h2>
           <div class="cards">
             ${list.map(({ it }) => `
               <a class="card" href="${href(state.lang, it.slug)}">
-                <span class="card-title">${esc(it.title)}</span>
+                <span class="card-title">${esc(it.title)}${key === "packages" ? purposeTag(it) : ""}</span>
                 <span class="card-summary">${esc(it.summary)}</span>
                 <span class="card-meta">
                   ${pkgBadges(it, false)}
@@ -395,6 +429,7 @@ function renderSheet(it) {
       <header class="sheet-head">
         <p class="eyebrow">
           <a href="${href(state.lang)}">${esc(LANG_LABEL[state.lang])}</a>
+          ${isPackageSheet(it) ? `<span>/</span><span>Package</span>` : ""}
           <span>/</span><span>${esc(categoryLabel(it.category))}</span>
           ${it.level ? `<span>/</span><span>${esc(LEVEL_LABEL[it.level] || it.level)}</span>` : ""}
         </p>
