@@ -3,7 +3,7 @@ title: "Base R essentials"
 slug: r-base-basics
 lang: r
 category: basics
-tags: [base-r, swirl, vectors, factors, functions, apply, pipe, mhedas]
+tags: [base-r, swirl, vectors, factors, functions, ellipsis, operators, scope, apply, pipe, mhedas]
 source_lessons: [L1]
 level: beginner
 order: 1
@@ -12,7 +12,7 @@ packages:
     version: "4.6.1"
 language_version: "R 4.6"
 last_verified: "2026-11-18"
-summary: "The core of R without packages: pipe, vectors, NA, subsetting, data frames, factors, functions, the apply family, simulation, dates and base plots."
+summary: "The core of R without packages: pipe, vectors, NA, subsetting, data frames, factors, functions (arguments, ..., custom operators, scope), the apply family, simulation, dates and base plots."
 sources:
   - title: "swirl: R Programming course"
     url: "https://swirlstats.com/scn/rprog.html"
@@ -224,11 +224,35 @@ ifelse(c(4, 12, NA) >= 10, "high", "low")   # "low" "high" NA
 ### Define and call
 The last evaluated expression is returned; `return()` is only needed to exit early.
 ```r
-add <- function(x, y = 2) {
-  x + y
+square <- function(x) {
+  x^2
 }
-add(5)                  # 7
-add(5, y = 10)          # 15
+square(4)               # 16
+
+add <- function(x, y) {
+  result <- x + y
+  return(result)        # explicit return, same result
+}
+add(5, 3)               # 8
+```
+
+### Default, positional and named arguments
+Arguments without a default are required. Named arguments can come in any order.
+```r
+power <- function(x, n = 2) {
+  x^n
+}
+power(3)                # 9   (n uses its default)
+power(3, 3)             # 27  (matched by position)
+power(n = 3, x = 2)     # 8   (matched by name)
+```
+
+### Anonymous functions
+A function without a name, written where it is used. `\(x)` is short for `function(x)` (R >= 4.1).
+```r
+sapply(1:4, function(x) x^2)    # 1 4 9 16
+sapply(1:4, \(x) x^2)           # same
+(function(x) x + 10)(5)         # 15
 ```
 
 ### if / else
@@ -243,11 +267,68 @@ check_age <- function(age) {
 check_age(20)           # "Adult"
 ```
 
+### Any number of arguments: `...`
+`...` collects extra arguments and passes them on to another function.
+```r
+telegram <- function(...) {
+  paste("START", ..., "STOP")
+}
+telegram("Good", "morning")             # "START Good morning STOP"
+
+my_mean <- function(x, ...) {
+  mean(x, ...)                          # na.rm = TRUE travels through ...
+}
+my_mean(c(1, NA, 3), na.rm = TRUE)      # 2
+```
+
+### Unpack `...` by position or name
+```r
+mad_libs <- function(...) {
+  args <- list(...)
+  paste(args[[1]], args[[2]], args[[3]])
+}
+mad_libs("London", "angry", "robots")   # "London angry robots"
+
+add_values <- function(...) {
+  args <- list(...)
+  args[["alpha"]] + args[["beta"]]
+}
+add_values(alpha = 5, beta = 10)        # 15
+```
+`length(list(...))` counts the arguments, `names(list(...))` gives their names.
+
+### Custom operators
+A function named `%something%` becomes an infix operator, like the built-in `%in%` and `%*%`.
+```r
+"%p%" <- function(left, right) {
+  paste(left, right)
+}
+"Good" %p% "job!"                       # "Good job!"
+
+"%mult_add_one%" <- function(left, right) left * right + 1
+4 %mult_add_one% 5                      # 21
+```
+
+### Scope
+Variables created inside a function are local. A name not found inside is looked up where the function was defined (lexical scoping).
+```r
+x <- 10
+shadow <- function() {
+  x <- 5                # a local x; the global x is untouched
+  x * 2
+}
+shadow()                # 10
+x                       # 10
+
+peek <- function() x + 5  # no local x: uses the global one
+peek()                  # 15
+```
+
 ### Inspect a function
 ```r
 args(paste)             # arguments
-formals(add)            # arguments with defaults
-body(add)               # the code
+formals(power)          # arguments with defaults
+body(power)             # the code
 ```
 
 ## The apply family
@@ -334,6 +415,8 @@ par(mfrow = c(1, 1))                   # reset
 - **Recycling**: `c(1, 2, 3, 4) + c(10, 20)` silently repeats the shorter vector.
 - **`&&` with a vector**: since R 4.3 it is an error. Use `&` for vectors, or `any()` / `all()`.
 - **`sapply` changes shape**: it can return a list, vector or matrix depending on the input. Use `vapply` in functions.
+- **Arguments after `...`** must be passed by their full name: in `paste(..., sep = " ")`, an unnamed value would land in `...`.
+- **Functions that read globals** (like `peek()` above) change behaviour when the global changes; pass values as arguments instead.
 
 ## Further reading
 - [swirl: R Programming](https://swirlstats.com/scn/rprog.html): the interactive course this sheet follows.
